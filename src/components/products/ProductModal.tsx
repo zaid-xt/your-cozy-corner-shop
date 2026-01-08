@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { X, ChevronLeft, ChevronRight, Package } from "lucide-react";
 import { Product } from "@/data/products";
 import { StarRating } from "./StarRating";
@@ -13,6 +14,7 @@ interface ProductModalProps {
 }
 
 export const ProductModal = ({ product, onClose }: ProductModalProps) => {
+  const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [newReview, setNewReview] = useState({ author: "", comment: "", rating: 0 });
   const [reviews, setReviews] = useState(product.reviews);
@@ -140,8 +142,14 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
               {product.description}
             </p>
 
-            <Button className="w-full mb-8 button-shadow" disabled={product.stock === 0}>
-              {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
+            <Button 
+              className="w-full mb-8 button-shadow" 
+              onClick={() => {
+                onClose();
+                navigate(`/enquire/${product.id}`);
+              }}
+            >
+              Enquire Now
             </Button>
 
             {/* Reviews Section */}
