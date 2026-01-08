@@ -1,22 +1,7 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "./StarRating";
-
-interface Review {
-  id: string;
-  rating: number;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  category: string;
-  stock: number;
-  images: string[];
-  reviews: Review[];
-}
+import { Product } from "@/types/product";
 
 interface ProductCardProps {
   product: Product;

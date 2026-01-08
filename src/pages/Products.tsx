@@ -5,25 +5,7 @@ import { ProductModal } from "@/components/products/ProductModal";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Loader2, Package } from "lucide-react";
-
-interface Review {
-  id: string;
-  author: string;
-  comment: string | null;
-  rating: number;
-  created_at: string;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  category: string;
-  stock: number;
-  images: string[];
-  reviews: Review[];
-}
+import { Product } from "@/types/product";
 
 const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -37,7 +19,6 @@ const Products = () => {
   }, []);
 
   const fetchProducts = async () => {
-    // Fetch products
     const { data: productsData, error: productsError } = await supabase
       .from("products")
       .select("*")
@@ -49,13 +30,11 @@ const Products = () => {
       return;
     }
 
-    // Fetch all reviews
     const { data: reviewsData } = await supabase
       .from("reviews")
       .select("*")
       .order("created_at", { ascending: false });
 
-    // Map reviews to products
     const productsWithReviews: Product[] = (productsData || []).map((product) => ({
       ...product,
       reviews: (reviewsData || []).filter((review) => review.product_id === product.id),
@@ -63,7 +42,6 @@ const Products = () => {
 
     setProducts(productsWithReviews);
 
-    // Extract unique categories
     const uniqueCategories = ["All", ...new Set(productsData?.map((p) => p.category) || [])];
     setCategories(uniqueCategories);
 
