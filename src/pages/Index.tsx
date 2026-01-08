@@ -6,25 +6,7 @@ import { ArrowRight, Sparkles, Truck, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductModal } from "@/components/products/ProductModal";
-
-interface Review {
-  id: string;
-  author: string;
-  comment: string | null;
-  rating: number;
-  created_at: string;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  category: string;
-  stock: number;
-  images: string[];
-  reviews: Review[];
-}
+import { Product } from "@/types/product";
 
 const features = [
   { icon: Sparkles, title: "Handcrafted Quality", description: "Every piece is made with care by skilled artisans." },

@@ -8,25 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-
-interface Review {
-  id: string;
-  author: string;
-  comment: string | null;
-  rating: number;
-  created_at: string;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  category: string;
-  stock: number;
-  images: string[];
-  reviews: Review[];
-}
+import { Product, Review } from "@/types/product";
 
 interface ProductModalProps {
   product: Product;
@@ -37,7 +19,7 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [newReview, setNewReview] = useState({ author: "", comment: "", rating: 0 });
-  const [reviews, setReviews] = useState(product.reviews);
+  const [reviews, setReviews] = useState<Review[]>(product.reviews);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const averageRating =
