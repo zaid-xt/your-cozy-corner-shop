@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, ChevronLeft, ChevronRight, Package } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Package, Loader2 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
-import { products } from "@/data/products";
+import { supabase } from "@/integrations/supabase/client";
 import { StarRating } from "@/components/products/StarRating";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,11 +10,31 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
+interface Review {
+  id: string;
+  author: string;
+  comment: string | null;
+  rating: number;
+  created_at: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  category: string;
+  stock: number;
+  images: string[];
+}
+
 const ProductEnquiry = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
-  const product = products.find((p) => p.id === productId);
-
+  const [product, setProduct] = useState<Product | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [formData, setFormData] = useState({
     name: "",
@@ -25,7 +45,49 @@ const ProductEnquiry = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    fetchProduct();
+  }, [productId]);
+
+  const fetchProduct = async () => {
+    if (!productId) return;
+
+    const { data: productData, error: productError } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", productId)
+      .maybeSingle();
+
+    if (productError) {
+      console.error("Error fetching product:", productError);
+      setIsLoading(false);
+      return;
+    }
+
+    setProduct(productData);
+
+    // Fetch reviews
+    if (productData) {
+      const { data: reviewsData } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("product_id", productId)
+        .order("created_at", { ascending: false });
+
+      setReviews(reviewsData || []);
+    }
+
+    setIsLoading(false);
+  };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-20 text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+        </div>
+      </Layout>
+    );
+  }
 
   if (!product) {
     return (
@@ -42,19 +104,23 @@ const ProductEnquiry = () => {
   }
 
   const averageRating =
-    product.reviews.length > 0
-      ? product.reviews.reduce((acc, r) => acc + r.rating, 0) / product.reviews.length
+    reviews.length > 0
+      ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
       : 0;
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
+    if (product.images.length > 0) {
+      setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
+    }
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + product.images.length) % product.images.length);
+    if (product.images.length > 0) {
+      setCurrentImageIndex((prev) => (prev - 1 + product.images.length) % product.images.length);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name || !formData.email || !formData.message) {
@@ -62,15 +128,26 @@ const ProductEnquiry = () => {
       return;
     }
 
-    // Here you would typically send the enquiry to your backend
-    console.log("Enquiry submitted:", {
-      product: product.name,
-      productId: product.id,
-      ...formData,
+    setIsSubmitting(true);
+
+    const { error } = await supabase.from("enquiries").insert({
+      product_id: product.id,
+      product_name: product.name,
+      customer_name: formData.name,
+      customer_email: formData.email,
+      customer_phone: formData.phone || null,
+      message: formData.message,
     });
 
-    toast.success("Enquiry sent successfully! We'll get back to you soon.");
-    setFormData({ name: "", email: "", phone: "", message: "" });
+    if (error) {
+      console.error("Error submitting enquiry:", error);
+      toast.error("Failed to send enquiry. Please try again.");
+    } else {
+      toast.success("Enquiry sent successfully! We'll get back to you soon.");
+      setFormData({ name: "", email: "", phone: "", message: "" });
+    }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -92,14 +169,20 @@ const ProductEnquiry = () => {
             {/* Image Gallery */}
             <div className="relative bg-muted rounded-xl overflow-hidden">
               <div className="aspect-square">
-                <img
-                  src={product.images[currentImageIndex]}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
+                {product.images && product.images.length > 0 ? (
+                  <img
+                    src={product.images[currentImageIndex]}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Package className="h-16 w-16 text-muted-foreground" />
+                  </div>
+                )}
               </div>
 
-              {product.images.length > 1 && (
+              {product.images && product.images.length > 1 && (
                 <>
                   <button
                     onClick={prevImage}
@@ -142,12 +225,12 @@ const ProductEnquiry = () => {
               <div className="flex items-center gap-3">
                 <StarRating rating={Math.round(averageRating)} size="md" />
                 <span className="text-sm text-muted-foreground">
-                  {averageRating.toFixed(1)} ({product.reviews.length} reviews)
+                  {averageRating.toFixed(1)} ({reviews.length} reviews)
                 </span>
               </div>
 
               <p className="text-2xl font-semibold text-foreground">
-                ${product.price.toFixed(2)}
+                ${Number(product.price).toFixed(2)}
               </p>
 
               <div className="flex items-center gap-2">
@@ -161,9 +244,11 @@ const ProductEnquiry = () => {
                 )}
               </div>
 
-              <p className="text-muted-foreground leading-relaxed">
-                {product.description}
-              </p>
+              {product.description && (
+                <p className="text-muted-foreground leading-relaxed">
+                  {product.description}
+                </p>
+              )}
             </div>
           </div>
 
@@ -232,8 +317,15 @@ const ProductEnquiry = () => {
                   />
                 </div>
 
-                <Button type="submit" className="w-full button-shadow" size="lg">
-                  Send Enquiry
+                <Button type="submit" className="w-full button-shadow" size="lg" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    "Send Enquiry"
+                  )}
                 </Button>
               </form>
             </div>

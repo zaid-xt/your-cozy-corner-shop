@@ -1,7 +1,22 @@
 import { useState } from "react";
-import { Product } from "@/data/products";
-import { StarRating } from "./StarRating";
 import { Badge } from "@/components/ui/badge";
+import { StarRating } from "./StarRating";
+
+interface Review {
+  id: string;
+  rating: number;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  category: string;
+  stock: number;
+  images: string[];
+  reviews: Review[];
+}
 
 interface ProductCardProps {
   product: Product;
@@ -16,6 +31,8 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
       ? product.reviews.reduce((acc, r) => acc + r.rating, 0) / product.reviews.length
       : 0;
 
+  const hasImages = product.images && product.images.length > 0;
+
   return (
     <div
       onClick={() => onClick(product)}
@@ -23,17 +40,25 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
     >
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-muted">
-        {!imageLoaded && (
-          <div className="absolute inset-0 bg-muted animate-pulse" />
+        {hasImages ? (
+          <>
+            {!imageLoaded && (
+              <div className="absolute inset-0 bg-muted animate-pulse" />
+            )}
+            <img
+              src={product.images[0]}
+              alt={product.name}
+              onLoad={() => setImageLoaded(true)}
+              className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
+                imageLoaded ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          </>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+            No Image
+          </div>
         )}
-        <img
-          src={product.images[0]}
-          alt={product.name}
-          onLoad={() => setImageLoaded(true)}
-          className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
-            imageLoaded ? "opacity-100" : "opacity-0"
-          }`}
-        />
         
         {/* Stock Badge */}
         {product.stock <= 5 && product.stock > 0 && (
@@ -65,7 +90,7 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
         </div>
         
         <p className="font-semibold text-foreground">
-          ${product.price.toFixed(2)}
+          ${Number(product.price).toFixed(2)}
         </p>
       </div>
     </div>

@@ -1,12 +1,32 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, ChevronLeft, ChevronRight, Package } from "lucide-react";
-import { Product } from "@/data/products";
+import { supabase } from "@/integrations/supabase/client";
 import { StarRating } from "./StarRating";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+
+interface Review {
+  id: string;
+  author: string;
+  comment: string | null;
+  rating: number;
+  created_at: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  category: string;
+  stock: number;
+  images: string[];
+  reviews: Review[];
+}
 
 interface ProductModalProps {
   product: Product;
@@ -18,33 +38,57 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [newReview, setNewReview] = useState({ author: "", comment: "", rating: 0 });
   const [reviews, setReviews] = useState(product.reviews);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const averageRating =
     reviews.length > 0
       ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
       : 0;
 
+  const hasImages = product.images && product.images.length > 0;
+
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
+    if (hasImages) {
+      setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
+    }
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + product.images.length) % product.images.length);
+    if (hasImages) {
+      setCurrentImageIndex((prev) => (prev - 1 + product.images.length) % product.images.length);
+    }
   };
 
-  const handleSubmitReview = (e: React.FormEvent) => {
+  const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newReview.author && newReview.comment && newReview.rating > 0) {
-      const review = {
-        id: `r${Date.now()}`,
+    if (!newReview.author || !newReview.comment || newReview.rating === 0) {
+      toast.error("Please fill in all fields and select a rating");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const { data, error } = await supabase
+      .from("reviews")
+      .insert({
+        product_id: product.id,
         author: newReview.author,
         comment: newReview.comment,
         rating: newReview.rating,
-        date: new Date().toISOString().split("T")[0],
-      };
-      setReviews([review, ...reviews]);
+      })
+      .select()
+      .single();
+
+    if (error) {
+      toast.error("Failed to submit review");
+      console.error(error);
+    } else {
+      setReviews([data, ...reviews]);
       setNewReview({ author: "", comment: "", rating: 0 });
+      toast.success("Review submitted successfully!");
     }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -69,14 +113,20 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
           {/* Image Gallery */}
           <div className="relative bg-muted">
             <div className="aspect-square">
-              <img
-                src={product.images[currentImageIndex]}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
+              {hasImages ? (
+                <img
+                  src={product.images[currentImageIndex]}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Package className="h-16 w-16 text-muted-foreground" />
+                </div>
+              )}
             </div>
 
-            {product.images.length > 1 && (
+            {hasImages && product.images.length > 1 && (
               <>
                 <button
                   onClick={prevImage}
@@ -124,7 +174,7 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
             </div>
 
             <p className="text-2xl font-semibold text-foreground mb-4">
-              ${product.price.toFixed(2)}
+              ${Number(product.price).toFixed(2)}
             </p>
 
             <div className="flex items-center gap-2 mb-6">
@@ -138,9 +188,11 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
               )}
             </div>
 
-            <p className="text-muted-foreground leading-relaxed mb-6">
-              {product.description}
-            </p>
+            {product.description && (
+              <p className="text-muted-foreground leading-relaxed mb-6">
+                {product.description}
+              </p>
+            )}
 
             <Button 
               className="w-full mb-8 button-shadow" 
@@ -183,8 +235,8 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
                   className="bg-card resize-none"
                   rows={3}
                 />
-                <Button type="submit" size="sm">
-                  Submit Review
+                <Button type="submit" size="sm" disabled={isSubmitting}>
+                  {isSubmitting ? "Submitting..." : "Submit Review"}
                 </Button>
               </form>
 
@@ -197,10 +249,14 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
                     <div key={review.id} className="pb-4 border-b border-border last:border-0">
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-medium text-sm">{review.author}</span>
-                        <span className="text-xs text-muted-foreground">{review.date}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(review.created_at).toLocaleDateString()}
+                        </span>
                       </div>
                       <StarRating rating={review.rating} size="sm" />
-                      <p className="text-sm text-muted-foreground mt-2">{review.comment}</p>
+                      {review.comment && (
+                        <p className="text-sm text-muted-foreground mt-2">{review.comment}</p>
+                      )}
                     </div>
                   ))
                 )}
