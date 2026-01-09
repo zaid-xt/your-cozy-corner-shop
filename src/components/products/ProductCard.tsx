@@ -18,10 +18,17 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
 
   const hasImages = product.images && product.images.length > 0;
 
+  const displayPrice = product.is_special && product.special_price ? product.special_price : product.price;
+  const discountPercent = product.is_special && product.special_price 
+    ? Math.round((1 - product.special_price / product.price) * 100) 
+    : 0;
+
   return (
     <div
       onClick={() => onClick(product)}
-      className="group cursor-pointer bg-card rounded-lg overflow-hidden card-shadow hover:card-shadow-hover transition-all duration-300"
+      className={`group cursor-pointer bg-card rounded-lg overflow-hidden card-shadow hover:card-shadow-hover transition-all duration-300 ${
+        product.is_special ? "ring-2 ring-destructive" : ""
+      }`}
     >
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-muted">
@@ -43,6 +50,13 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
             No Image
           </div>
+        )}
+        
+        {/* Special Badge */}
+        {product.is_special && (
+          <Badge className="absolute top-3 right-3 bg-destructive text-destructive-foreground animate-pulse">
+            {discountPercent > 0 ? `${discountPercent}% OFF` : "SPECIAL"}
+          </Badge>
         )}
         
         {/* Stock Badge */}
@@ -74,9 +88,22 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
           </span>
         </div>
         
-        <p className="font-semibold text-foreground">
-          ${Number(product.price).toFixed(2)}
-        </p>
+        <div className="flex items-center gap-2">
+          {product.is_special && product.special_price ? (
+            <>
+              <p className="font-semibold text-destructive">
+                R{Number(displayPrice).toFixed(2)}
+              </p>
+              <p className="text-sm text-muted-foreground line-through">
+                R{Number(product.price).toFixed(2)}
+              </p>
+            </>
+          ) : (
+            <p className="font-semibold text-foreground">
+              R{Number(product.price).toFixed(2)}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
