@@ -66,8 +66,10 @@ export type Database = {
           description: string | null
           id: string
           images: string[] | null
+          is_special: boolean
           name: string
           price: number
+          special_price: number | null
           stock: number
           updated_at: string
         }
@@ -78,8 +80,10 @@ export type Database = {
           description?: string | null
           id?: string
           images?: string[] | null
+          is_special?: boolean
           name: string
           price?: number
+          special_price?: number | null
           stock?: number
           updated_at?: string
         }
@@ -90,8 +94,10 @@ export type Database = {
           description?: string | null
           id?: string
           images?: string[] | null
+          is_special?: boolean
           name?: string
           price?: number
+          special_price?: number | null
           stock?: number
           updated_at?: string
         }

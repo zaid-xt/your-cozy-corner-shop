@@ -15,4 +15,6 @@ export interface Product {
   stock: number;
   images: string[];
   reviews: Review[];
+  is_special: boolean;
+  special_price: number | null;
 }
