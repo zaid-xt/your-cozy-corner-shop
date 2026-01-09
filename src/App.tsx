@@ -12,6 +12,7 @@ import Services from "./pages/Services";
 import Admin from "./pages/Admin";
 import ProductEnquiry from "./pages/ProductEnquiry";
 import NotFound from "./pages/NotFound";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
       <TooltipProvider>
       <Toaster />
       <Sonner />
+      <WhatsAppButton phoneNumber="27123456789" />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
