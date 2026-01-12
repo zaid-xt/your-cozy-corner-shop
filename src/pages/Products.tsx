@@ -30,17 +30,21 @@ const Products = () => {
       return;
     }
 
-    const { data: reviewsData } = await supabase
-      .from("reviews")
-      .select("*")
-      .order("created_at", { ascending: false });
+    // Fetch reviews, fabrics, and colors in parallel
+    const [reviewsRes, fabricsRes, colorsRes] = await Promise.all([
+      supabase.from("reviews").select("*").order("created_at", { ascending: false }),
+      supabase.from("product_fabrics").select("*"),
+      supabase.from("product_colors").select("*"),
+    ]);
 
-    const productsWithReviews: Product[] = (productsData || []).map((product) => ({
+    const productsWithData: Product[] = (productsData || []).map((product) => ({
       ...product,
-      reviews: (reviewsData || []).filter((review) => review.product_id === product.id),
+      reviews: (reviewsRes.data || []).filter((review) => review.product_id === product.id),
+      fabrics: (fabricsRes.data || []).filter((fabric) => fabric.product_id === product.id),
+      colors: (colorsRes.data || []).filter((color) => color.product_id === product.id),
     }));
 
-    setProducts(productsWithReviews);
+    setProducts(productsWithData);
 
     const uniqueCategories = ["All", ...new Set(productsData?.map((p) => p.category) || [])];
     setCategories(uniqueCategories);

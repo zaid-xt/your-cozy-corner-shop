@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Package, MessageSquare, LogOut, Pencil, Trash2, ImageIcon, Tag } from "lucide-react";
+import { Plus, Package, MessageSquare, LogOut, Pencil, Trash2, ImageIcon, Tag, Palette, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,20 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+
+interface ProductFabric {
+  id: string;
+  product_id: string;
+  name: string;
+  image_url: string | null;
+}
+
+interface ProductColor {
+  id: string;
+  product_id: string;
+  name: string;
+  hex_code: string;
+}
 
 interface Product {
   id: string;
@@ -21,6 +35,8 @@ interface Product {
   created_at: string;
   is_special: boolean;
   special_price: number | null;
+  fabrics?: ProductFabric[];
+  colors?: ProductColor[];
 }
 
 interface Enquiry {
@@ -53,6 +69,13 @@ export const AdminDashboard = () => {
     is_special: false,
     special_price: "",
   });
+
+  // Fabrics and colors for the currently editing product
+  const [fabrics, setFabrics] = useState<ProductFabric[]>([]);
+  const [colors, setColors] = useState<ProductColor[]>([]);
+  const [newFabric, setNewFabric] = useState({ name: "", image_url: "" });
+  const [newColor, setNewColor] = useState({ name: "", hex_code: "#000000" });
+  const [uploadingFabricImage, setUploadingFabricImage] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -141,11 +164,25 @@ export const AdminDashboard = () => {
       is_special: false,
       special_price: "",
     });
+    setFabrics([]);
+    setColors([]);
+    setNewFabric({ name: "", image_url: "" });
+    setNewColor({ name: "", hex_code: "#000000" });
     setEditingProduct(null);
     setShowProductForm(false);
   };
 
-  const handleEditProduct = (product: Product) => {
+  const fetchProductFabricsAndColors = async (productId: string) => {
+    const [fabricsRes, colorsRes] = await Promise.all([
+      supabase.from("product_fabrics").select("*").eq("product_id", productId),
+      supabase.from("product_colors").select("*").eq("product_id", productId),
+    ]);
+    
+    if (fabricsRes.data) setFabrics(fabricsRes.data);
+    if (colorsRes.data) setColors(colorsRes.data);
+  };
+
+  const handleEditProduct = async (product: Product) => {
     setEditingProduct(product);
     setProductForm({
       name: product.name,
@@ -157,7 +194,114 @@ export const AdminDashboard = () => {
       is_special: product.is_special,
       special_price: product.special_price?.toString() || "",
     });
+    await fetchProductFabricsAndColors(product.id);
     setShowProductForm(true);
+  };
+
+  const handleFabricImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingFabricImage(true);
+    const fileExt = file.name.split('.').pop();
+    const fileName = `fabric-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("product-images")
+      .upload(fileName, file);
+
+    if (uploadError) {
+      toast.error("Failed to upload fabric image");
+      setUploadingFabricImage(false);
+      return;
+    }
+
+    const { data: publicUrl } = supabase.storage
+      .from("product-images")
+      .getPublicUrl(fileName);
+
+    setNewFabric(prev => ({ ...prev, image_url: publicUrl.publicUrl }));
+    setUploadingFabricImage(false);
+  };
+
+  const handleAddFabric = async () => {
+    if (!newFabric.name) {
+      toast.error("Please enter a fabric name");
+      return;
+    }
+    if (!editingProduct) {
+      toast.error("Please save the product first before adding fabrics");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("product_fabrics")
+      .insert({
+        product_id: editingProduct.id,
+        name: newFabric.name,
+        image_url: newFabric.image_url || null,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      toast.error("Failed to add fabric");
+      console.error(error);
+    } else {
+      setFabrics([...fabrics, data]);
+      setNewFabric({ name: "", image_url: "" });
+      toast.success("Fabric added");
+    }
+  };
+
+  const handleDeleteFabric = async (id: string) => {
+    const { error } = await supabase.from("product_fabrics").delete().eq("id", id);
+    if (error) {
+      toast.error("Failed to delete fabric");
+    } else {
+      setFabrics(fabrics.filter(f => f.id !== id));
+      toast.success("Fabric removed");
+    }
+  };
+
+  const handleAddColor = async () => {
+    if (!newColor.name) {
+      toast.error("Please enter a color name");
+      return;
+    }
+    if (!editingProduct) {
+      toast.error("Please save the product first before adding colors");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("product_colors")
+      .insert({
+        product_id: editingProduct.id,
+        name: newColor.name,
+        hex_code: newColor.hex_code,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      toast.error("Failed to add color");
+      console.error(error);
+    } else {
+      setColors([...colors, data]);
+      setNewColor({ name: "", hex_code: "#000000" });
+      toast.success("Color added");
+    }
+  };
+
+  const handleDeleteColor = async (id: string) => {
+    const { error } = await supabase.from("product_colors").delete().eq("id", id);
+    if (error) {
+      toast.error("Failed to delete color");
+    } else {
+      setColors(colors.filter(c => c.id !== id));
+      toast.success("Color removed");
+    }
   };
 
   const handleSubmitProduct = async (e: React.FormEvent) => {
@@ -496,6 +640,137 @@ export const AdminDashboard = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Fabrics Section - Only show when editing */}
+                {editingProduct && (
+                  <div className="bg-muted/50 rounded-lg p-4 space-y-4">
+                    <div className="flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4" />
+                      <label className="text-sm font-medium">Fabric Options</label>
+                    </div>
+                    
+                    {/* Existing fabrics */}
+                    {fabrics.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {fabrics.map((fabric) => (
+                          <div key={fabric.id} className="flex items-center gap-2 bg-card rounded-lg p-2 pr-3">
+                            {fabric.image_url ? (
+                              <img src={fabric.image_url} alt={fabric.name} className="w-8 h-8 rounded object-cover" />
+                            ) : (
+                              <div className="w-8 h-8 rounded bg-muted flex items-center justify-center">
+                                <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            )}
+                            <span className="text-sm">{fabric.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteFabric(fabric.id)}
+                              className="ml-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Add new fabric */}
+                    <div className="flex gap-2 items-end">
+                      <div className="flex-1">
+                        <label className="text-xs text-muted-foreground mb-1 block">Fabric Name</label>
+                        <Input
+                          value={newFabric.name}
+                          onChange={(e) => setNewFabric({ ...newFabric, name: e.target.value })}
+                          placeholder="e.g. Cotton, Silk, Linen"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1 block">Image (optional)</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFabricImageUpload}
+                            className="hidden"
+                            id="fabric-image-upload"
+                            disabled={uploadingFabricImage}
+                          />
+                          <label
+                            htmlFor="fabric-image-upload"
+                            className="cursor-pointer px-3 py-2 text-sm border rounded-md bg-card hover:bg-accent"
+                          >
+                            {uploadingFabricImage ? "..." : newFabric.image_url ? "✓" : "Upload"}
+                          </label>
+                        </div>
+                      </div>
+                      <Button type="button" size="sm" onClick={handleAddFabric}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Colors Section - Only show when editing */}
+                {editingProduct && (
+                  <div className="bg-muted/50 rounded-lg p-4 space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Palette className="h-4 w-4" />
+                      <label className="text-sm font-medium">Color Options</label>
+                    </div>
+                    
+                    {/* Existing colors */}
+                    {colors.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {colors.map((color) => (
+                          <div key={color.id} className="flex items-center gap-2 bg-card rounded-lg p-2 pr-3">
+                            <div 
+                              className="w-6 h-6 rounded-full border border-border" 
+                              style={{ backgroundColor: color.hex_code }}
+                            />
+                            <span className="text-sm">{color.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteColor(color.id)}
+                              className="ml-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Add new color */}
+                    <div className="flex gap-2 items-end">
+                      <div className="flex-1">
+                        <label className="text-xs text-muted-foreground mb-1 block">Color Name</label>
+                        <Input
+                          value={newColor.name}
+                          onChange={(e) => setNewColor({ ...newColor, name: e.target.value })}
+                          placeholder="e.g. Navy Blue, Forest Green"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1 block">Color</label>
+                        <input
+                          type="color"
+                          value={newColor.hex_code}
+                          onChange={(e) => setNewColor({ ...newColor, hex_code: e.target.value })}
+                          className="w-10 h-10 rounded cursor-pointer border border-border"
+                        />
+                      </div>
+                      <Button type="button" size="sm" onClick={handleAddColor}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {!editingProduct && (
+                  <p className="text-sm text-muted-foreground bg-accent/50 rounded-lg p-3">
+                    💡 Save the product first, then edit it to add fabric and color options.
+                  </p>
+                )}
 
                 <div className="flex gap-3 pt-4">
                   <Button type="submit" disabled={uploading}>

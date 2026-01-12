@@ -58,6 +58,70 @@ export type Database = {
           },
         ]
       }
+      product_colors: {
+        Row: {
+          created_at: string
+          hex_code: string
+          id: string
+          name: string
+          product_id: string
+        }
+        Insert: {
+          created_at?: string
+          hex_code: string
+          id?: string
+          name: string
+          product_id: string
+        }
+        Update: {
+          created_at?: string
+          hex_code?: string
+          id?: string
+          name?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_colors_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_fabrics: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          name: string
+          product_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name: string
+          product_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_fabrics_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string

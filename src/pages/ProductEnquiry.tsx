@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import { ArrowLeft, ChevronLeft, ChevronRight, Package, Loader2 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,6 +31,10 @@ interface Product {
 const ProductEnquiry = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const selectedFabric = searchParams.get("fabric");
+  const selectedColor = searchParams.get("color");
+  
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -130,13 +134,22 @@ const ProductEnquiry = () => {
 
     setIsSubmitting(true);
 
+    // Build message with selected options
+    let messageWithOptions = formData.message;
+    if (selectedFabric || selectedColor) {
+      const options = [];
+      if (selectedFabric) options.push(`Fabric: ${selectedFabric}`);
+      if (selectedColor) options.push(`Color: ${selectedColor}`);
+      messageWithOptions = `[Selected: ${options.join(", ")}]\n\n${formData.message}`;
+    }
+
     const { error } = await supabase.from("enquiries").insert({
       product_id: product.id,
       product_name: product.name,
       customer_name: formData.name,
       customer_email: formData.email,
       customer_phone: formData.phone || null,
-      message: formData.message,
+      message: messageWithOptions,
     });
 
     if (error) {
@@ -248,6 +261,21 @@ const ProductEnquiry = () => {
                 <p className="text-muted-foreground leading-relaxed">
                   {product.description}
                 </p>
+              )}
+
+              {/* Selected Options */}
+              {(selectedFabric || selectedColor) && (
+                <div className="bg-muted rounded-lg p-4 space-y-2">
+                  <p className="text-sm font-medium">Selected Options:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedFabric && (
+                      <Badge variant="secondary">Fabric: {selectedFabric}</Badge>
+                    )}
+                    {selectedColor && (
+                      <Badge variant="secondary">Color: {selectedColor}</Badge>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
           </div>

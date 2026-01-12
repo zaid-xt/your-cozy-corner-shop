@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, ChevronLeft, ChevronRight, Package } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Package, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { StarRating } from "./StarRating";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Product, Review } from "@/types/product";
+import { Product, Review, ProductFabric, ProductColor } from "@/types/product";
 
 interface ProductModalProps {
   product: Product;
@@ -21,6 +21,11 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
   const [newReview, setNewReview] = useState({ author: "", comment: "", rating: 0 });
   const [reviews, setReviews] = useState<Review[]>(product.reviews);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFabric, setSelectedFabric] = useState<ProductFabric | null>(null);
+  const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
+
+  const hasFabrics = product.fabrics && product.fabrics.length > 0;
+  const hasColors = product.colors && product.colors.length > 0;
 
   const averageRating =
     reviews.length > 0
@@ -176,11 +181,73 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
               </p>
             )}
 
+            {/* Fabric Selection */}
+            {hasFabrics && (
+              <div className="mb-4">
+                <label className="text-sm font-medium mb-2 block">Select Fabric</label>
+                <div className="flex flex-wrap gap-2">
+                  {product.fabrics!.map((fabric) => (
+                    <button
+                      key={fabric.id}
+                      onClick={() => setSelectedFabric(fabric)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all ${
+                        selectedFabric?.id === fabric.id
+                          ? "border-primary bg-primary/10 ring-2 ring-primary/20"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      {fabric.image_url ? (
+                        <img src={fabric.image_url} alt={fabric.name} className="w-6 h-6 rounded object-cover" />
+                      ) : (
+                        <div className="w-6 h-6 rounded bg-muted" />
+                      )}
+                      <span className="text-sm">{fabric.name}</span>
+                      {selectedFabric?.id === fabric.id && (
+                        <Check className="h-4 w-4 text-primary" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Color Selection */}
+            {hasColors && (
+              <div className="mb-6">
+                <label className="text-sm font-medium mb-2 block">Select Color</label>
+                <div className="flex flex-wrap gap-2">
+                  {product.colors!.map((color) => (
+                    <button
+                      key={color.id}
+                      onClick={() => setSelectedColor(color)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all ${
+                        selectedColor?.id === color.id
+                          ? "border-primary bg-primary/10 ring-2 ring-primary/20"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <div 
+                        className="w-5 h-5 rounded-full border border-border" 
+                        style={{ backgroundColor: color.hex_code }}
+                      />
+                      <span className="text-sm">{color.name}</span>
+                      {selectedColor?.id === color.id && (
+                        <Check className="h-4 w-4 text-primary" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <Button 
               className="w-full mb-8 button-shadow" 
               onClick={() => {
                 onClose();
-                navigate(`/enquire/${product.id}`);
+                const params = new URLSearchParams();
+                if (selectedFabric) params.set("fabric", selectedFabric.name);
+                if (selectedColor) params.set("color", selectedColor.name);
+                navigate(`/enquire/${product.id}${params.toString() ? `?${params.toString()}` : ""}`);
               }}
             >
               Enquire Now
