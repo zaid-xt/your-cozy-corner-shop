@@ -87,11 +87,11 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
       />
 
       {/* Modal */}
-      <div className="relative bg-card rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-scale-in card-shadow-hover">
+      <div className="relative bg-card rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-scale-in card-shadow-hover">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors"
+          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors sticky"
         >
           <X className="h-5 w-5" />
         </button>
