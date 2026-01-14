@@ -27,6 +27,13 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
   const hasFabrics = product.fabrics && product.fabrics.length > 0;
   const hasColors = product.colors && product.colors.length > 0;
 
+  // Determine if enquiry is allowed based on selections
+  const fabricRequired = hasFabrics;
+  const colorRequired = hasColors;
+  const canEnquire = 
+    (!fabricRequired || selectedFabric !== null) && 
+    (!colorRequired || selectedColor !== null);
+
   const averageRating =
     reviews.length > 0
       ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
@@ -240,20 +247,30 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
               </div>
             )}
 
-            <Button 
-              className="w-full mb-8 button-shadow" 
-              onClick={() => {
-                onClose();
-                const params = new URLSearchParams();
-                if (selectedFabric) params.set("fabric", selectedFabric.name);
-                if (selectedColor) params.set("color", selectedColor.name);
-                navigate(`/enquire/${product.id}${params.toString() ? `?${params.toString()}` : ""}`);
-              }}
-            >
-              Enquire Now
-            </Button>
-
-            {/* Reviews Section */}
+            <div className="mb-8">
+              <Button 
+                className="w-full button-shadow" 
+                disabled={!canEnquire}
+                onClick={() => {
+                  onClose();
+                  const params = new URLSearchParams();
+                  if (selectedFabric) params.set("fabric", selectedFabric.name);
+                  if (selectedColor) params.set("color", selectedColor.name);
+                  navigate(`/enquire/${product.id}${params.toString() ? `?${params.toString()}` : ""}`);
+                }}
+              >
+                Enquire Now
+              </Button>
+              {!canEnquire && (
+                <p className="text-sm text-muted-foreground text-center mt-2">
+                  {!selectedFabric && fabricRequired && !selectedColor && colorRequired
+                    ? "Please select a fabric and color to continue"
+                    : !selectedFabric && fabricRequired
+                    ? "Please select a fabric to continue"
+                    : "Please select a color to continue"}
+                </p>
+              )}
+            </div>
             <div className="border-t border-border pt-6">
               <h3 className="font-display text-lg font-semibold mb-4">
                 Customer Reviews
