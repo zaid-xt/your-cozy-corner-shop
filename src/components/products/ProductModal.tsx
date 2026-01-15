@@ -187,9 +187,27 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
               </span>
             </div>
 
-            <p className="text-2xl font-semibold text-foreground mb-4">
-              R{Number(product.price).toFixed(2)}
-            </p>
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+  {product.is_special && product.special_price ? (
+    <>
+      <p className="text-2xl font-semibold text-destructive">
+        R{Number(product.special_price).toFixed(2)}
+      </p>
+      <p className="text-lg text-muted-foreground line-through">
+        R{Number(product.price).toFixed(2)}
+      </p>
+      {product.is_special && (
+        <Badge className="ml-2 bg-destructive text-destructive-foreground">
+          {Math.round((1 - Number(product.special_price) / Number(product.price)) * 100)}% OFF
+        </Badge>
+      )}
+    </>
+  ) : (
+    <p className="text-2xl font-semibold text-foreground">
+      R{Number(product.price).toFixed(2)}
+    </p>
+  )}
+</div>
 
             <div className="flex items-center gap-2 mb-6">
               <Package className="h-4 w-4 text-muted-foreground" />
