@@ -138,28 +138,34 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
               )}
             </div>
 
-            {/* Thumbnail Gallery */}
-            {hasImages && product.images.length > 1 && (
-              <div className="flex gap-2 p-3 overflow-x-auto">
-                {product.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImageIndex(index)}
-                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all {
-                      index === currentImageIndex 
-                        ? "border-primary ring-2 ring-primary/20" 
-                        : "border-transparent hover:border-primary/50"
-                    }`}
-                  >
-                    <img 
-                      src={image} 
-                      alt={`${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
+{/* Thumbnail Gallery */}
+{hasImages && product.images.length > 1 && (
+  <div className="flex gap-2 p-3 overflow-x-auto">
+    {product.images.map((image, index) => (
+      <button
+        key={index}
+        onClick={() => setCurrentImageIndex(index)}
+        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden transition-all relative group ${
+          index === currentImageIndex 
+            ? "ring-2 ring-primary ring-offset-2 scale-105" 
+            : "hover:scale-105 opacity-90 hover:opacity-100"
+        }`}
+      >
+        <img 
+          src={image} 
+          alt={`${product.name} ${index + 1}`}
+          className={`w-full h-full object-cover transition-all duration-200 ${
+            index === currentImageIndex ? "brightness-100" : "brightness-90 group-hover:brightness-100"
+          }`}
+        />
+        {/* Overlay for selected image */}
+        {index === currentImageIndex && (
+          <div className="absolute inset-0 bg-primary/10" />
+        )}
+      </button>
+    ))}
+  </div>
+)}
 
             {/* Description below image */}
             {product.description && (
