@@ -20,14 +20,14 @@ export const Navbar = () => {
     <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+          {/* Logo - Fixed for mobile */}
+          <Link to="/" className="flex items-center space-x-2 md:space-x-3">
             <img 
               src={logo} 
-              alt="Your Logo" 
-              className="h-15 w-auto md:h-20"
+              alt="KayaHaus Logo" 
+              className="h-10 w-auto md:h-14 lg:h-16"
             />
-            <span className="font-display text-xl md:text-2xl font-semibold text-foreground">
+            <span className="font-display text-lg md:text-xl lg:text-2xl font-semibold text-foreground">
               KayaHaus
             </span>
           </Link>
