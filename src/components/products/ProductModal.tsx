@@ -145,7 +145,7 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all {
                       index === currentImageIndex 
                         ? "border-primary ring-2 ring-primary/20" 
                         : "border-transparent hover:border-primary/50"
@@ -188,7 +188,7 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
             </div>
 
             <p className="text-2xl font-semibold text-foreground mb-4">
-              ${Number(product.price).toFixed(2)}
+              R{Number(product.price).toFixed(2)}
             </p>
 
             <div className="flex items-center gap-2 mb-6">
