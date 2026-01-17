@@ -7,10 +7,18 @@ import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const contactInfo = [
-  { icon: Mail, label: "Email", value: "hello@artisan.store" },
-  { icon: Phone, label: "Phone", value: "+1 (555) 123-4567" },
-  { icon: MapPin, label: "Address", value: "123 Craft Street, Design City, DC 12345" },
-  { icon: Clock, label: "Hours", value: "Mon-Fri: 9AM - 6PM EST" },
+  { icon: Mail, label: "Email", value: "info@kayahaus.co.za" },
+  { icon: Phone, label: "Phone", value: "+27 78 574 9329" },
+  { icon: MapPin, label: "Address", value: "1 Nortjie Street Onverwacht Road, Strand Helderberg" },
+  { 
+    icon: Clock, 
+    label: "Business Hours", 
+    value: [
+      "Mon - Fri: 9:00 AM - 17:00 PM",
+      "Saturday: 9:00 AM - 13:00 PM", 
+      "Sunday and Public Holidays: Closed"
+    ]
+  },
 ];
 
 const Contact = () => {
@@ -122,9 +130,21 @@ const Contact = () => {
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <info.icon className="h-5 w-5 text-primary" />
                     </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">{info.label}</p>
-                      <p className="font-medium text-foreground">{info.value}</p>
+                    <div className="flex-1">
+                      <p className="text-sm text-muted-foreground mb-1">{info.label}</p>
+                      
+                      {/* Check if value is an array (for Business Hours) */}
+                      {Array.isArray(info.value) ? (
+                        <div className="flex flex-col space-y-0.5">
+                          {info.value.map((hour, index) => (
+                            <p key={index} className="font-medium text-foreground text-sm">
+                              {hour}
+                            </p>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="font-medium text-foreground">{info.value}</p>
+                      )}
                     </div>
                   </div>
                 ))}

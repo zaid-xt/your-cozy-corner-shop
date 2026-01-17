@@ -105,49 +105,75 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
 
         <div className="grid md:grid-cols-2 gap-0">
           {/* Image Gallery */}
-          <div className="relative bg-muted">
-            <div className="aspect-square">
+          <div className="bg-muted flex flex-col">
+            {/* Main Image */}
+            <div className="relative w-full" style={{ paddingBottom: '100%' }}>
               {hasImages ? (
                 <img
                   src={product.images[currentImageIndex]}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
+                <div className="absolute inset-0 w-full h-full flex items-center justify-center">
                   <Package className="h-16 w-16 text-muted-foreground" />
                 </div>
               )}
+
+              {hasImages && product.images.length > 1 && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors z-10"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors z-10"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </>
+              )}
             </div>
 
-            {hasImages && product.images.length > 1 && (
-              <>
-                <button
-                  onClick={prevImage}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <button
-                  onClick={nextImage}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
+{/* Thumbnail Gallery */}
+{hasImages && product.images.length > 1 && (
+  <div className="flex gap-2 p-3 overflow-x-auto">
+    {product.images.map((image, index) => (
+      <button
+        key={index}
+        onClick={() => setCurrentImageIndex(index)}
+        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden transition-all relative group ${
+          index === currentImageIndex 
+            ? "ring-2 ring-primary ring-offset-2 scale-105" 
+            : "hover:scale-105 opacity-90 hover:opacity-100"
+        }`}
+      >
+        <img 
+          src={image} 
+          alt={`${product.name} ${index + 1}`}
+          className={`w-full h-full object-cover transition-all duration-200 ${
+            index === currentImageIndex ? "brightness-100" : "brightness-90 group-hover:brightness-100"
+          }`}
+        />
+        {/* Overlay for selected image */}
+        {index === currentImageIndex && (
+          <div className="absolute inset-0 bg-primary/10" />
+        )}
+      </button>
+    ))}
+  </div>
+)}
 
-                {/* Thumbnails */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                  {product.images.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`w-2 h-2 rounded-full transition-colors ${
-                        index === currentImageIndex ? "bg-primary" : "bg-card/60"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </>
+            {/* Description below image */}
+            {product.description && (
+              <div className="p-4 bg-card/50 border-t border-border">
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {product.description}
+                </p>
+              </div>
             )}
           </div>
 
@@ -167,9 +193,27 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
               </span>
             </div>
 
-            <p className="text-2xl font-semibold text-foreground mb-4">
-              ${Number(product.price).toFixed(2)}
-            </p>
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+  {product.is_special && product.special_price ? (
+    <>
+      <p className="text-2xl font-semibold text-destructive">
+        R{Number(product.special_price).toFixed(2)}
+      </p>
+      <p className="text-lg text-muted-foreground line-through">
+        R{Number(product.price).toFixed(2)}
+      </p>
+      {product.is_special && (
+        <Badge className="ml-2 bg-destructive text-destructive-foreground">
+          {Math.round((1 - Number(product.special_price) / Number(product.price)) * 100)}% OFF
+        </Badge>
+      )}
+    </>
+  ) : (
+    <p className="text-2xl font-semibold text-foreground">
+      R{Number(product.price).toFixed(2)}
+    </p>
+  )}
+</div>
 
             <div className="flex items-center gap-2 mb-6">
               <Package className="h-4 w-4 text-muted-foreground" />
@@ -182,11 +226,6 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
               )}
             </div>
 
-            {product.description && (
-              <p className="text-muted-foreground leading-relaxed mb-6">
-                {product.description}
-              </p>
-            )}
 
             {/* Fabric Selection */}
             {hasFabrics && (

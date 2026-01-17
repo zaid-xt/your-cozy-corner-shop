@@ -15,7 +15,7 @@ import hero3 from "..//components/images/WhatsApp Image 2026-01-08 at 10.25.55.j
 import hero4 from "..//components/images/WhatsApp Image 2026-01-08 at 10.30.34.jpeg";
 const features = [
   { icon: Sparkles, title: "Handcrafted Quality", description: "Every piece is made with care by skilled artisans." },
-  { icon: Truck, title: "Free Shipping", description: "Complimentary shipping on orders over $100." },
+  { icon: Truck, title: "Free Shipping", description: "Complimentary shipping on orders over R10 000." },
   { icon: Shield, title: "Secure Checkout", description: "Your payment information is always protected." },
 ];
 

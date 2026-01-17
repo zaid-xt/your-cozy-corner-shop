@@ -26,7 +26,7 @@ export const ProductCard = ({ product, onClick }: ProductCardProps) => {
   return (
     <div
       onClick={() => onClick(product)}
-      className={`group cursor-pointer bg-card rounded-lg overflow-hidden card-shadow hover:card-shadow-hover transition-all duration-300 ${
+      className={`group cursor-pointer bg-card overflow-hidden card-shadow hover:card-shadow-hover transition-all duration-300 ${
         product.is_special ? "ring-2 ring-destructive" : ""
       }`}
     >

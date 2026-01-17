@@ -10,7 +10,7 @@ export const Footer = () => {
           <div className="space-y-4">
             <Link to="/" className="flex items-center space-x-2">
               <ShoppingBag className="h-6 w-6" />
-              <span className="font-display text-xl font-semibold">Artisan</span>
+              <span className="font-display text-xl font-semibold">KayaHaus</span>
             </Link>
             <p className="text-sm text-primary-foreground/70">
               Curated collection of handcrafted products made with love and attention to detail.
@@ -40,44 +40,34 @@ export const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-sm text-primary-foreground/70">
                 <Mail className="h-4 w-4" />
-                hello@artisan.store
+                info@kayahaus.co.za
               </li>
               <li className="flex items-center gap-2 text-sm text-primary-foreground/70">
                 <Phone className="h-4 w-4" />
-                +1 (555) 123-4567
+                +27 78 574 9329
               </li>
               <li className="flex items-center gap-2 text-sm text-primary-foreground/70">
                 <MapPin className="h-4 w-4" />
-                123 Craft Street, Design City
+                1 Nortjie Street Onverwacht Road, Strand Helderberg
               </li>
             </ul>
           </div>
-
-          {/* Newsletter */}
-          <div>
-            <h4 className="font-display text-lg font-semibold mb-4">Newsletter</h4>
-            <p className="text-sm text-primary-foreground/70 mb-4">
-              Subscribe for updates on new products and exclusive offers.
-            </p>
-            <form className="flex gap-2">
-              <input
-                type="email"
-                placeholder="Your email"
-                className="flex-1 px-3 py-2 text-sm bg-primary-foreground/10 border border-primary-foreground/20 rounded-md placeholder:text-primary-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-              >
-                Join
-              </button>
-            </form>
-          </div>
         </div>
-
-        <div className="mt-12 pt-8 border-t border-primary-foreground/10 text-center text-sm text-primary-foreground/50">
-          © {new Date().getFullYear()} Artisan. All rights reserved.
-        </div>
+        
+<div className="mt-12 pt-8 border-t border-primary-foreground/10 text-center text-sm text-primary-foreground/50">
+  © {new Date().getFullYear()} KayaHaus. All rights reserved.
+  <div className="mt-2">
+    Powered by{" "}
+    <a 
+      href="https://devtechinnovations.co.za" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="text-primary-foreground/70 hover:text-primary-foreground hover:underline transition-colors"
+    >
+      DevTech Innovations
+    </a>
+  </div>
+</div>
       </div>
     </footer>
   );
