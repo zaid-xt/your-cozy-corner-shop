@@ -228,20 +228,20 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 					<div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto text-left">
 						{[
 							{
-								q: "What's your return policy?",
-								a: "We offer a 30-day satisfaction guarantee on all products.",
+								q: "Do you have a showroom?",
+								a: "We do not have a public showroom. However, you can visit our workshop by appointment only to view materials, finishes, and ongoing projects.",
 							},
 							{
-								q: "Do you ship internationally?",
-								a: "Yes! We ship to over 50 countries worldwide.",
+								q: "What is the lead time?",
+								a: "Our standard lead time is 7–21 days, depending on the product and level of customisation.",
 							},
 							{
 								q: "How long does shipping take?",
-								a: "Domestic orders arrive in 3-5 business days.",
+								a: "You can place an order via WhatsApp, Instagram DM, or our website enquiry form. Our team will assist you from design to final confirmation.",
 							},
 							{
 								q: "Are your products handmade?",
-								a: "Every product is handcrafted by skilled artisans.",
+								a: "Yes. A 50% deposit is required to secure your order, with the balance payable before delivery or installation.",
 							},
 						].map((faq, index) => (
 							<div
