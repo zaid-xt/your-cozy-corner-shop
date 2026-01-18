@@ -79,9 +79,11 @@ const Services = () => {
                 </ul>
                 <div className="flex items-center justify-between pt-4 border-t border-border">
                   <span className="font-semibold text-foreground">{service.price}</span>
+                  <Link to="/contact">
                   <Button variant="ghost" size="sm" className="gap-1 text-primary">
-                    Learn More <ArrowRight className="h-4 w-4" />
+                    Contact Us <ArrowRight className="h-4 w-4" />
                   </Button>
+                  </Link>
                 </div>
               </div>
             ))}
