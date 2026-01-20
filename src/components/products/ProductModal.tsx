@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Product, Review, ProductFabric, ProductColor } from "@/types/product";
+import { Product, Review, ProductFabric, ProductColor, ProductSize } from "@/types/product";
 
 interface ProductModalProps {
   product: Product;
@@ -23,16 +23,20 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFabric, setSelectedFabric] = useState<ProductFabric | null>(null);
   const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
+  const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
 
   const hasFabrics = product.fabrics && product.fabrics.length > 0;
   const hasColors = product.colors && product.colors.length > 0;
+  const hasSizes = product.sizes && product.sizes.length > 0;
 
   // Determine if enquiry is allowed based on selections
   const fabricRequired = hasFabrics;
   const colorRequired = hasColors;
+  const sizeRequired = hasSizes;
   const canEnquire = 
     (!fabricRequired || selectedFabric !== null) && 
-    (!colorRequired || selectedColor !== null);
+    (!colorRequired || selectedColor !== null) &&
+    (!sizeRequired || selectedSize !== null);
 
   const averageRating =
     reviews.length > 0
@@ -286,6 +290,31 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
               </div>
             )}
 
+            {/* Size Selection */}
+            {hasSizes && (
+              <div className="mb-6">
+                <label className="text-sm font-medium mb-2 block">Select Size</label>
+                <div className="flex flex-wrap gap-2">
+                  {product.sizes!.map((size) => (
+                    <button
+                      key={size.id}
+                      onClick={() => setSelectedSize(size)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
+                        selectedSize?.id === size.id
+                          ? "border-primary bg-primary/10 ring-2 ring-primary/20"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <span className="text-sm font-medium">{size.name}</span>
+                      {selectedSize?.id === size.id && (
+                        <Check className="h-4 w-4 text-primary" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="mb-8">
               <Button 
                 className="w-full button-shadow" 
@@ -295,6 +324,7 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
                   const params = new URLSearchParams();
                   if (selectedFabric) params.set("fabric", selectedFabric.name);
                   if (selectedColor) params.set("color", selectedColor.name);
+                  if (selectedSize) params.set("size", selectedSize.name);
                   navigate(`/enquire/${product.id}${params.toString() ? `?${params.toString()}` : ""}`);
                 }}
               >
@@ -302,11 +332,13 @@ export const ProductModal = ({ product, onClose }: ProductModalProps) => {
               </Button>
               {!canEnquire && (
                 <p className="text-sm text-muted-foreground text-center mt-2">
-                  {!selectedFabric && fabricRequired && !selectedColor && colorRequired
-                    ? "Please select a fabric and color to continue"
-                    : !selectedFabric && fabricRequired
-                    ? "Please select a fabric to continue"
-                    : "Please select a color to continue"}
+                  {(() => {
+                    const missing = [];
+                    if (fabricRequired && !selectedFabric) missing.push("fabric");
+                    if (colorRequired && !selectedColor) missing.push("color");
+                    if (sizeRequired && !selectedSize) missing.push("size");
+                    return `Please select a ${missing.join(" and ")} to continue`;
+                  })()}
                 </p>
               )}
             </div>

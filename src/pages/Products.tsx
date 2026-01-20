@@ -46,11 +46,12 @@ const Products = () => {
       return;
     }
 
-    // Fetch reviews, fabrics, and colors in parallel
-    const [reviewsRes, fabricsRes, colorsRes] = await Promise.all([
+    // Fetch reviews, fabrics, colors, and sizes in parallel
+    const [reviewsRes, fabricsRes, colorsRes, sizesRes] = await Promise.all([
       supabase.from("reviews").select("*").order("created_at", { ascending: false }),
       supabase.from("product_fabrics").select("*"),
       supabase.from("product_colors").select("*"),
+      supabase.from("product_sizes").select("*"),
     ]);
 
     const productsWithData: Product[] = (productsData || []).map((product) => ({
@@ -58,6 +59,7 @@ const Products = () => {
       reviews: (reviewsRes.data || []).filter((review) => review.product_id === product.id),
       fabrics: (fabricsRes.data || []).filter((fabric) => fabric.product_id === product.id),
       colors: (colorsRes.data || []).filter((color) => color.product_id === product.id),
+      sizes: (sizesRes.data || []).filter((size) => size.product_id === product.id),
     }));
 
     setProducts(productsWithData);

@@ -74,13 +74,22 @@ const Index = () => {
         .eq("is_featured", true)
         .order("created_at", { ascending: false });
       
-      const { data: reviewsData } = await supabase.from("reviews").select("*");
+      // Fetch reviews, fabrics, colors, and sizes in parallel
+      const [reviewsRes, fabricsRes, colorsRes, sizesRes] = await Promise.all([
+        supabase.from("reviews").select("*"),
+        supabase.from("product_fabrics").select("*"),
+        supabase.from("product_colors").select("*"),
+        supabase.from("product_sizes").select("*"),
+      ]);
       
-      const productsWithReviews: Product[] = (productsData || []).map((product) => ({
+      const productsWithData: Product[] = (productsData || []).map((product) => ({
         ...product,
-        reviews: (reviewsData || []).filter((r) => r.product_id === product.id),
+        reviews: (reviewsRes.data || []).filter((r) => r.product_id === product.id),
+        fabrics: (fabricsRes.data || []).filter((f) => f.product_id === product.id),
+        colors: (colorsRes.data || []).filter((c) => c.product_id === product.id),
+        sizes: (sizesRes.data || []).filter((s) => s.product_id === product.id),
       }));
-      setFeaturedProducts(productsWithReviews);
+      setFeaturedProducts(productsWithData);
     };
     fetchProducts();
   }, []);

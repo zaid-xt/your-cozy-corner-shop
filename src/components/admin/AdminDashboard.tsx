@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Package, MessageSquare, LogOut, Pencil, Trash2, ImageIcon, Tag, Palette, X, Star } from "lucide-react";
+import { Plus, Package, MessageSquare, LogOut, Pencil, Trash2, ImageIcon, Tag, Palette, X, Star, Ruler } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,12 @@ interface ProductColor {
   hex_code: string;
 }
 
+interface ProductSize {
+  id: string;
+  product_id: string;
+  name: string;
+}
+
 interface Product {
   id: string;
   name: string;
@@ -40,6 +46,7 @@ interface Product {
   is_featured: boolean;
   fabrics?: ProductFabric[];
   colors?: ProductColor[];
+  sizes?: ProductSize[];
 }
 
 interface Enquiry {
@@ -74,11 +81,13 @@ export const AdminDashboard = () => {
     is_featured: false,
   });
 
-  // Fabrics and colors for the currently editing product
+  // Fabrics, colors, and sizes for the currently editing product
   const [fabrics, setFabrics] = useState<ProductFabric[]>([]);
   const [colors, setColors] = useState<ProductColor[]>([]);
+  const [sizes, setSizes] = useState<ProductSize[]>([]);
   const [newFabric, setNewFabric] = useState({ name: "", image_url: "" });
   const [newColor, setNewColor] = useState({ name: "", hex_code: "#000000" });
+  const [newSize, setNewSize] = useState({ name: "" });
   const [uploadingFabricImage, setUploadingFabricImage] = useState(false);
 
   useEffect(() => {
@@ -171,20 +180,24 @@ export const AdminDashboard = () => {
     });
     setFabrics([]);
     setColors([]);
+    setSizes([]);
     setNewFabric({ name: "", image_url: "" });
     setNewColor({ name: "", hex_code: "#000000" });
+    setNewSize({ name: "" });
     setEditingProduct(null);
     setShowProductForm(false);
   };
 
-  const fetchProductFabricsAndColors = async (productId: string) => {
-    const [fabricsRes, colorsRes] = await Promise.all([
+  const fetchProductFabricsColorsAndSizes = async (productId: string) => {
+    const [fabricsRes, colorsRes, sizesRes] = await Promise.all([
       supabase.from("product_fabrics").select("*").eq("product_id", productId),
       supabase.from("product_colors").select("*").eq("product_id", productId),
+      supabase.from("product_sizes").select("*").eq("product_id", productId),
     ]);
     
     if (fabricsRes.data) setFabrics(fabricsRes.data);
     if (colorsRes.data) setColors(colorsRes.data);
+    if (sizesRes.data) setSizes(sizesRes.data);
   };
 
   const handleEditProduct = async (product: Product) => {
@@ -200,7 +213,7 @@ export const AdminDashboard = () => {
       special_price: product.special_price?.toString() || "",
       is_featured: product.is_featured,
     });
-    await fetchProductFabricsAndColors(product.id);
+    await fetchProductFabricsColorsAndSizes(product.id);
     setShowProductForm(true);
   };
 
@@ -307,6 +320,45 @@ export const AdminDashboard = () => {
     } else {
       setColors(colors.filter(c => c.id !== id));
       toast.success("Color removed");
+    }
+  };
+
+  const handleAddSize = async () => {
+    if (!newSize.name) {
+      toast.error("Please enter a size name");
+      return;
+    }
+    if (!editingProduct) {
+      toast.error("Please save the product first before adding sizes");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("product_sizes")
+      .insert({
+        product_id: editingProduct.id,
+        name: newSize.name,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      toast.error("Failed to add size");
+      console.error(error);
+    } else {
+      setSizes([...sizes, data]);
+      setNewSize({ name: "" });
+      toast.success("Size added");
+    }
+  };
+
+  const handleDeleteSize = async (id: string) => {
+    const { error } = await supabase.from("product_sizes").delete().eq("id", id);
+    if (error) {
+      toast.error("Failed to delete size");
+    } else {
+      setSizes(sizes.filter(s => s.id !== id));
+      toast.success("Size removed");
     }
   };
 
@@ -806,9 +858,52 @@ export const AdminDashboard = () => {
                   </div>
                 )}
 
+                {/* Sizes Section - Only show when editing */}
+                {editingProduct && (
+                  <div className="bg-muted/50 rounded-lg p-4 space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Ruler className="h-4 w-4" />
+                      <label className="text-sm font-medium">Size Options</label>
+                    </div>
+                    
+                    {/* Existing sizes */}
+                    {sizes.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {sizes.map((size) => (
+                          <div key={size.id} className="flex items-center gap-2 bg-card rounded-lg p-2 pr-3">
+                            <span className="text-sm font-medium">{size.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteSize(size.id)}
+                              className="ml-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Add new size */}
+                    <div className="flex gap-2 items-end">
+                      <div className="flex-1">
+                        <label className="text-xs text-muted-foreground mb-1 block">Size Name</label>
+                        <Input
+                          value={newSize.name}
+                          onChange={(e) => setNewSize({ ...newSize, name: e.target.value })}
+                          placeholder="e.g. Small, Medium, Large, XL, King, Queen"
+                        />
+                      </div>
+                      <Button type="button" size="sm" onClick={handleAddSize}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 {!editingProduct && (
                   <p className="text-sm text-muted-foreground bg-accent/50 rounded-lg p-3">
-                    💡 Save the product first, then edit it to add fabric and color options.
+                    💡 Save the product first, then edit it to add fabric, color, and size options.
                   </p>
                 )}
 

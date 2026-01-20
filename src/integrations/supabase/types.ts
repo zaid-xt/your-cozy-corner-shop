@@ -122,6 +122,35 @@ export type Database = {
           },
         ]
       }
+      product_sizes: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          product_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          product_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_sizes_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string
