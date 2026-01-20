@@ -8,6 +8,13 @@ import { ProductCard } from "@/components/products/ProductCard";
 import { ProductModal } from "@/components/products/ProductModal";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { Product } from "@/types/product";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 // Import your images or use paths
 import hero1 from "..//components/images//WhatsApp Image 2026-01-08 at 10.31.02.jpeg"
@@ -268,16 +275,35 @@ const Index = () => {
               <p className="text-muted-foreground max-w-xl mx-auto">Discover our most loved handcrafted pieces.</p>
             </div>
             
-            {/* Featured Products Slider */}
-            <div className="relative">
-              <div className="overflow-hidden">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-                  {featuredProducts.slice(0, 8).map((product, index) => (
-                    <div key={product.id} className="animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
+            {/* Mobile Carousel */}
+            <div className="md:hidden">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-2">
+                  {featuredProducts.slice(0, 8).map((product) => (
+                    <CarouselItem key={product.id} className="pl-2 basis-[85%]">
                       <ProductCard product={product} onClick={setSelectedProduct} />
-                    </div>
+                    </CarouselItem>
                   ))}
-                </div>
+                </CarouselContent>
+                <CarouselPrevious className="left-0 -translate-x-1/2" />
+                <CarouselNext className="right-0 translate-x-1/2" />
+              </Carousel>
+            </div>
+
+            {/* Desktop Grid */}
+            <div className="hidden md:block">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+                {featuredProducts.slice(0, 8).map((product, index) => (
+                  <div key={product.id} className="animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
+                    <ProductCard product={product} onClick={setSelectedProduct} />
+                  </div>
+                ))}
               </div>
             </div>
             
