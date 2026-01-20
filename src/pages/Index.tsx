@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Truck, Shield, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Sparkles, Truck, Shield, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductModal } from "@/components/products/ProductModal";
@@ -24,7 +24,7 @@ import hero4 from "..//components/images/WhatsApp Image 2026-01-08 at 10.30.34.j
 const features = [
   { icon: Sparkles, title: "Handcrafted Quality", description: "Every piece is made with care by skilled artisans." },
   { icon: Truck, title: "Free Shipping", description: "Complimentary shipping on orders over R10 000." },
-  { icon: Shield, title: "Secure Checkout", description: "Your payment information is always protected." },
+  { icon: MessageCircle, title: "Free Consultation",description: "Expert advice before you order." },
 ];
 
 const slides = [
@@ -46,15 +46,15 @@ const slides = [
     buttonText: "Our Materials",
     buttonLink: "/about#materials"
   },
-  {
-    id: 3,
-    title: "Artisan",
-    highlight: "Stories",
-    description: "Meet the makers behind our products and learn about their traditions and techniques.",
-    image: hero3, 
-    buttonText: "Meet Our Artisans",
-    buttonLink: "/about#artisans"
-  },
+ {
+  id: 3,
+  title: "Tailored",
+  highlight: "Solutions",
+  description: "Custom designs crafted to match your unique vision and space perfectly.",
+  image: hero3, 
+  buttonText: "Explore Custom Services",
+  buttonLink: "/services"
+},
   {
     id: 4,
     title: "Limited Edition",
