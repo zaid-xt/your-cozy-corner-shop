@@ -22,6 +22,13 @@ export interface ProductColor {
   created_at: string;
 }
 
+export interface ProductSize {
+  id: string;
+  product_id: string;
+  name: string;
+  created_at: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -36,4 +43,5 @@ export interface Product {
   is_featured: boolean;
   fabrics?: ProductFabric[];
   colors?: ProductColor[];
+  sizes?: ProductSize[];
 }
