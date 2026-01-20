@@ -24,7 +24,7 @@ export const Navbar = () => {
         <div className="bg-primary text-primary-foreground py-2 px-4 relative">
           <div className="container mx-auto flex items-center justify-center gap-2">
             <span className="text-sm font-medium text-center">
-              🚚 Free delivery on all orders above R500.00!
+              🚚 Free delivery and free scatter cushions on couch orders in CPT!
             </span>
             <button
               onClick={() => setShowBanner(false)}
