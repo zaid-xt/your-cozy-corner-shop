@@ -8,7 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { PRODUCT_CATEGORIES } from "@/components/home/CategoryGrid";
 
 interface ProductFabric {
   id: string;
@@ -513,12 +515,21 @@ export const AdminDashboard = () => {
                     <label className="text-sm font-medium mb-1.5 block">
                       Category <span className="text-destructive">*</span>
                     </label>
-                    <Input
+                    <Select
                       value={productForm.category}
-                      onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
-                      placeholder="e.g. Ceramics, Textiles"
-                      required
-                    />
+                      onValueChange={(value) => setProductForm({ ...productForm, category: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PRODUCT_CATEGORIES.filter(c => !c.isSpecial).map((category) => (
+                          <SelectItem key={category.slug} value={category.slug}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 

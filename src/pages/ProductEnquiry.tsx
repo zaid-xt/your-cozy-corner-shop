@@ -151,10 +151,7 @@ const ProductEnquiry = () => {
         throw new Error(data.message || "Failed to send enquiry");
       }
 
-      toast({
-        title: "Enquiry Sent",
-        description: "We’ll get back to you shortly.",
-      });
+      toast.success("Enquiry Sent! We'll get back to you shortly.");
 
       setFormData({
         name: "",
@@ -162,17 +159,9 @@ const ProductEnquiry = () => {
         phone: "",
         message: "",
       });
-
-      // optional: clear selected options if you want
-      // setSelectedColor(null);
-      // setSelectedFabric(null);
     } catch (error) {
       console.error("Enquiry error:", error);
-      toast({
-        title: "Failed to send enquiry",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
+      toast.error("Failed to send enquiry. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
@@ -195,7 +184,7 @@ const ProductEnquiry = () => {
           {/* Product Details */}
           <div className="space-y-6">
             {/* Image Gallery */}
-            <div className="relative bg-muted rounded-xl overflow-hidden">
+            <div className="relative bg-muted overflow-hidden">
               <div className="aspect-square">
                 {product.images && product.images.length > 0 ? (
                   <img
@@ -214,13 +203,13 @@ const ProductEnquiry = () => {
                 <>
                   <button
                     onClick={prevImage}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-card/80 backdrop-blur-sm hover:bg-card transition-colors"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
                   <button
                     onClick={nextImage}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-card/80 backdrop-blur-sm hover:bg-card transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-card/80 backdrop-blur-sm hover:bg-card transition-colors"
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
@@ -231,7 +220,7 @@ const ProductEnquiry = () => {
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
-                        className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                        className={`w-2.5 h-2.5 transition-colors ${
                           index === currentImageIndex ? "bg-primary" : "bg-card/60"
                         }`}
                       />
@@ -258,7 +247,7 @@ const ProductEnquiry = () => {
               </div>
 
               <p className="text-2xl font-semibold text-foreground">
-                ${Number(product.price).toFixed(2)}
+                R{Number(product.price).toFixed(2)}
               </p>
 
               <div className="flex items-center gap-2">
@@ -280,7 +269,7 @@ const ProductEnquiry = () => {
 
               {/* Selected Options */}
               {(selectedFabric || selectedColor) && (
-                <div className="bg-muted rounded-lg p-4 space-y-2">
+                <div className="bg-muted p-4 space-y-2">
                   <p className="text-sm font-medium">Selected Options:</p>
                   <div className="flex flex-wrap gap-2">
                     {selectedFabric && (
@@ -297,7 +286,7 @@ const ProductEnquiry = () => {
 
           {/* Enquiry Form */}
           <div className="lg:sticky lg:top-8 h-fit">
-            <div className="bg-card rounded-xl p-6 md:p-8 card-shadow">
+            <div className="bg-card p-6 md:p-8 card-shadow">
               <h2 className="font-display text-xl md:text-2xl font-semibold mb-2">
                 Enquire About This Product
               </h2>
@@ -340,7 +329,7 @@ const ProductEnquiry = () => {
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="+27 (0) 00 000 0000"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   />

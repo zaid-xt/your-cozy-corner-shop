@@ -6,6 +6,7 @@ import { ArrowRight, Sparkles, Truck, Shield, ChevronLeft, ChevronRight } from "
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductModal } from "@/components/products/ProductModal";
+import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { Product } from "@/types/product";
 
 // Import your images or use paths
@@ -223,13 +224,16 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Rest of your existing code remains the same */}
-      <section className="py-12 md:py-16 bg-muted/30">
+      {/* Category Grid */}
+      <CategoryGrid />
+
+      {/* Features Section */}
+      <section className="py-12 md:py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <div key={index} className="text-center p-6 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <div className="w-14 h-14 bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <feature.icon className="h-7 w-7 text-primary" />
                 </div>
                 <h3 className="font-display text-lg font-semibold text-foreground mb-2">{feature.title}</h3>

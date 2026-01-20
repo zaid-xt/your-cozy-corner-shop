@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductModal } from "@/components/products/ProductModal";
@@ -8,11 +9,26 @@ import { Loader2, Package } from "lucide-react";
 import { Product } from "@/types/product";
 
 const Products = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlCategory = searchParams.get("category");
+  const showSaleOnly = searchParams.get("sale") === "true";
+  
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>(["All"]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState(urlCategory || "All");
+
+  useEffect(() => {
+    // Sync URL param with state
+    if (urlCategory) {
+      setSelectedCategory(urlCategory);
+    } else if (showSaleOnly) {
+      setSelectedCategory("Sale");
+    } else {
+      setSelectedCategory("All");
+    }
+  }, [urlCategory, showSaleOnly]);
 
   useEffect(() => {
     fetchProducts();
@@ -52,10 +68,32 @@ const Products = () => {
     setIsLoading(false);
   };
 
-  const filteredProducts =
-    selectedCategory === "All"
-      ? products
-      : products.filter((p) => p.category === selectedCategory);
+  const filteredProducts = (() => {
+    if (selectedCategory === "Sale" || showSaleOnly) {
+      return products.filter((p) => p.is_special);
+    }
+    if (selectedCategory === "All") {
+      return products;
+    }
+    return products.filter((p) => p.category === selectedCategory);
+  })();
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    if (category === "All") {
+      setSearchParams({});
+    } else if (category === "Sale") {
+      setSearchParams({ sale: "true" });
+    } else {
+      setSearchParams({ category });
+    }
+  };
+
+  const pageTitle = showSaleOnly || selectedCategory === "Sale" 
+    ? "Sale Items" 
+    : selectedCategory !== "All" 
+      ? selectedCategory 
+      : "Our Products";
 
   return (
     <Layout>
@@ -63,34 +101,34 @@ const Products = () => {
       <section className="hero-gradient py-12 md:py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="font-display text-3xl md:text-4xl font-semibold text-foreground mb-4 animate-slide-up">
-            Our Products
+            {pageTitle}
           </h1>
           <p className="text-muted-foreground max-w-xl mx-auto animate-fade-in">
-            Browse our collection of handcrafted goods, each piece made with love and attention to detail.
+            {showSaleOnly || selectedCategory === "Sale" 
+              ? "Don't miss out on these amazing deals!"
+              : "Browse our collection of handcrafted goods, each piece made with love and attention to detail."}
           </p>
         </div>
       </section>
 
       {/* Filters */}
-      {categories.length > 1 && (
-        <section className="py-6 border-b border-border sticky top-16 md:top-20 bg-background/95 backdrop-blur-sm z-40">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-wrap gap-2 justify-center">
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category)}
-                  className="transition-all"
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
+      <section className="py-6 border-b border-border sticky top-16 md:top-20 bg-background/95 backdrop-blur-sm z-40">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap gap-2 justify-center">
+            {["All", ...categories.filter(c => c !== "All"), "Sale"].map((category) => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleCategoryChange(category)}
+                className="transition-all"
+              >
+                {category}
+              </Button>
+            ))}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* Products Grid */}
       <section className="py-12 md:py-16">
