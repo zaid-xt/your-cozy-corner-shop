@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Truck, Shield, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
+import { ArrowRight, Sparkles, Truck, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductModal } from "@/components/products/ProductModal";
@@ -17,14 +17,15 @@ import {
 } from "@/components/ui/carousel";
 
 // Import your images or use paths
-import hero1 from "..//components/images//WhatsApp Image 2026-01-08 at 10.31.02.jpeg"
-import hero2 from "..//components/images/WhatsApp Image 2026-01-08 at 10.25.25.jpeg"
-import hero3 from "..//components/images/WhatsApp Image 2026-01-08 at 10.25.55.jpeg";
-import hero4 from "..//components/images/WhatsApp Image 2026-01-08 at 10.30.34.jpeg";
+import hero1 from "../components/images/WhatsApp Image 2026-01-08 at 10.31.02.jpeg";
+import hero2 from "../components/images/WhatsApp Image 2026-01-08 at 10.25.25.jpeg";
+import hero3 from "../components/images/WhatsApp Image 2026-01-08 at 10.25.55.jpeg";
+import hero4 from "../components/images/WhatsApp Image 2026-01-08 at 10.30.34.jpeg";
+
 const features = [
   { icon: Sparkles, title: "Handcrafted Quality", description: "Every piece is made with care by skilled artisans." },
   { icon: Truck, title: "Free Shipping", description: "Complimentary shipping on orders over R10 000." },
-  { icon: MessageCircle, title: "Free Consultation",description: "Expert advice before you order." },
+  { icon: MessageCircle, title: "Free Consultation", description: "Expert advice before you order." },
 ];
 
 const slides = [
@@ -46,15 +47,15 @@ const slides = [
     buttonText: "Our Materials",
     buttonLink: "/about#materials"
   },
- {
-  id: 3,
-  title: "Tailored",
-  highlight: "Solutions",
-  description: "Custom designs crafted to match your unique vision and space perfectly.",
-  image: hero3, 
-  buttonText: "Explore Custom Services",
-  buttonLink: "/services"
-},
+  {
+    id: 3,
+    title: "Tailored",
+    highlight: "Solutions",
+    description: "Custom designs crafted to match your unique vision and space perfectly.",
+    image: hero3, 
+    buttonText: "Explore Custom Services",
+    buttonLink: "/services"
+  },
   {
     id: 4,
     title: "Limited Edition",
@@ -123,7 +124,7 @@ const Index = () => {
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
     setIsAutoPlaying(false);
-    setTimeout(() => setIsAutoPlaying(true), 3000); // Resume auto-play after 3 seconds
+    setTimeout(() => setIsAutoPlaying(true), 3000);
   };
 
   return (
@@ -241,7 +242,7 @@ const Index = () => {
               width: isAutoPlaying ? '100%' : '0%',
               transition: isAutoPlaying ? 'width 5s linear' : 'none'
             }}
-            key={currentSlide} // Reset animation on slide change
+            key={currentSlide}
           />
         </div>
       </section>
@@ -249,24 +250,7 @@ const Index = () => {
       {/* Category Grid */}
       <CategoryGrid />
 
-      {/* Features Section */}
-      <section className="py-12 md:py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div key={index} className="text-center p-6 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-                <div className="w-14 h-14 bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <feature.icon className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-display text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground text-sm">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products */}
+      {/* Featured Products Section - MOVED UP */}
       {featuredProducts.length > 0 && (
         <section className="py-16 md:py-24">
           <div className="container mx-auto px-4">
@@ -295,18 +279,44 @@ const Index = () => {
             </Carousel>
             
             <div className="text-center mt-12">
-              <Link to="/products"><Button variant="outline" size="lg" className="gap-2">View All Products<ArrowRight className="h-4 w-4" /></Button></Link>
+              <Link to="/products">
+                <Button variant="outline" size="lg" className="gap-2">
+                  View All Products
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
       )}
+
+      {/* Features Section - MOVED DOWN */}
+      <section className="py-12 md:py-16">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <div key={index} className="text-center p-6 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                <div className="w-14 h-14 bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <feature.icon className="h-7 w-7 text-primary" />
+                </div>
+                <h3 className="font-display text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
+                <p className="text-muted-foreground text-sm">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
       <section className="py-16 md:py-24 bg-foreground text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
           <h2 className="font-display text-3xl md:text-4xl font-semibold mb-4">Need Something Custom?</h2>
           <p className="text-primary-foreground/70 max-w-xl mx-auto mb-8">We offer bespoke services for special orders.</p>
-          <Link to="/services"><Button size="lg" className="bg-primary-foreground text-foreground hover:bg-primary-foreground/90">Explore Services</Button></Link>
+          <Link to="/services">
+            <Button size="lg" className="bg-primary-foreground text-foreground hover:bg-primary-foreground/90">
+              Explore Services
+            </Button>
+          </Link>
         </div>
       </section>
 
