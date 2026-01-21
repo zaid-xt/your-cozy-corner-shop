@@ -1,14 +1,37 @@
-User-agent: Googlebot
+User-agent: *
+Disallow: /admin/
+Disallow: /supabase/
+Disallow: /api/
+Disallow: /private/
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /user-profile/
+Disallow: /login/
+Disallow: /register/
+Disallow: /search?q=*
 Allow: /
 
+# Search engines
+User-agent: Googlebot
+User-agent: Googlebot-Image
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 1
 
-User-agent: Twitterbot
+# Social media
+User-agent: FacebookExternalHit
+User-agent: Instagram
+User-agent: Pinterest
 Allow: /
+Crawl-delay: 2
 
-User-agent: facebookexternalhit
-Allow: /
+# Block unwanted bots
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: MJ12bot
+User-agent: DotBot
+Disallow: /
 
-User-agent: *
-Allow: /
+Sitemap: https://kayahaus.co.za/sitemap.xml
+Sitemap: https://kayahaus.co.za/sitemap-products.xml
+Sitemap: https://kayahaus.co.za/sitemap-categories.xml
