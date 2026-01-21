@@ -108,7 +108,7 @@ const Index = () => {
 
     const interval = setInterval(() => {
       nextSlide();
-    }, 10000); // Change slide every 5 seconds
+    }, 5000); // Change slide every 5 seconds
 
     return () => clearInterval(interval);
   }, [currentSlide, isAutoPlaying]);
@@ -250,7 +250,7 @@ const Index = () => {
       {/* Category Grid */}
       <CategoryGrid />
 
-      {/* Featured Products Section - MOVED UP */}
+      {/* Featured Products Section */}
       {featuredProducts.length > 0 && (
         <section className="py-16 md:py-24">
           <div className="container mx-auto px-4">
@@ -290,17 +290,21 @@ const Index = () => {
         </section>
       )}
 
-      {/* Features Section - MOVED DOWN */}
-      <section className="py-12 md:py-16">
+      {/* Features Section - DARKER VERSION */}
+      <section className="py-12 md:py-16 bg-muted/80 dark:bg-muted/90">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="text-center p-6 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-                <div className="w-14 h-14 bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <feature.icon className="h-7 w-7 text-primary" />
+              <div 
+                key={index} 
+                className="text-center p-8 animate-fade-in rounded-lg bg-card/70 dark:bg-card/80 shadow-sm hover:shadow-md transition-shadow"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="w-16 h-16 bg-primary/10 dark:bg-primary/20 flex items-center justify-center mx-auto mb-6 rounded-full">
+                  <feature.icon className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="font-display text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground text-sm">{feature.description}</p>
+                <h3 className="font-display text-xl font-semibold text-foreground mb-3">{feature.title}</h3>
+                <p className="text-muted-foreground dark:text-muted-foreground/90">{feature.description}</p>
               </div>
             ))}
           </div>
